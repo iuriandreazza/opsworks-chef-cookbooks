@@ -4,9 +4,6 @@
 
 node[:deploy].each do |application, deploy|
 
-  print application
-  print node[:custom_env]
-  
   # Set ACL rules to give proper permission to cache and logs
   script "update_acl" do
     interpreter "bash"

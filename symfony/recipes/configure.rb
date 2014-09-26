@@ -11,22 +11,39 @@ node[:deploy].each do |application, deploy|
     cwd "#{deploy[:deploy_to]}/current"
     code <<-EOH
     mkdir -p app/cache app/logs
-    mount -o remount,acl /srv/www 
+    mount -o remount,acl /srv/www
     setfacl -R -m u:www-data:rwX -m u:ubuntu:rwX app/cache/ app/logs/
     setfacl -dR -m u:www-data:rwx -m u:ubuntu:rwx app/cache/ app/logs/
     EOH
   end
 
-  # Place environment variables in the .htaccess file in the web-root 
-  template "#{deploy[:deploy_to]}/current/web/.htaccess" do
-    source "htaccess.erb"
-    owner deploy[:user] 
+  # Place environment variables in the .htaccess file in the web-root
+  template "#{deploy[:deploy_to]}/current/php/.htaccess" do
+    source "htaccess_admin.erb"
+    owner deploy[:user]
     group deploy[:group]
     mode "0660"
 
-    variables( 
-        :env => (node[:custom_env] rescue nil), 
-        :application => "#{application}" 
+    variables(
+        :env => (node[:custom_env] rescue nil),
+        :application => "#{application}"
+    )
+
+    only_if do
+     File.directory?("#{deploy[:deploy_to]}/current/php")
+    end
+  end
+
+  # Place environment variables in the .htaccess file in the web-root
+  template "#{deploy[:deploy_to]}/current/web/.htaccess" do
+    source "htaccess.erb"
+    owner deploy[:user]
+    group deploy[:group]
+    mode "0660"
+
+    variables(
+        :env => (node[:custom_env] rescue nil),
+        :application => "#{application}"
     )
 
     only_if do

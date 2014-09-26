@@ -58,13 +58,15 @@ node[:deploy].each do |application, deploy|
   include_recipe 'symfony::paramconfig'
 
   # Clear and warm-up Symfony cache if warmup_cache option is defined in the application configuration
-  if node[:custom_env][application.to_s].has_key?("warmup_cache")
-      execute 'clear_symfony_cache_prod' do
-        user    "root"
-        cwd     "#{deploy[:deploy_to]}/current"
-        command "php app/console cache:clear --env=prod --no-debug"
-        action :run
-      end
+  if(node[:custom_env][application.to_s] != nil)
+    if node[:custom_env][application.to_s].has_key?("warmup_cache")
+        execute 'clear_symfony_cache_prod' do
+          user    "root"
+          cwd     "#{deploy[:deploy_to]}/current"
+          command "php app/console cache:clear --env=prod --no-debug"
+          action :run
+        end
+    end
   end
 
 end
